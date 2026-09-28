@@ -1,11 +1,51 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { useEffect, useState } from "react"
+import { motion, type Variants } from "framer-motion"
 import { BriefcaseIcon, CalendarIcon, MapPinIcon } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import experienceJson from "@/api/experience.json"
+
+type ExperienceData = typeof experienceJson
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+
+async function fetchExperienceData(): Promise<ExperienceData> {
+  if (!API_BASE_URL) {
+    return experienceJson
+  }
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/experience`, { cache: "no-store" })
+    if (!res.ok) throw new Error("Failed to fetch experience data")
+    // return (await res.json()) as ExperienceData
+  } catch (error) {
+    console.warn("[ExperiencePage] Falling back to local JSON data.", error)
+  }
+
+  return experienceJson
+}
 
 export default function ExperiencePage() {
-  const containerVariants = {
+  const [remoteExperienceData, setRemoteExperienceData] = useState<ExperienceData | null>(null)
+
+  useEffect(() => {
+    let isMounted = true
+
+    fetchExperienceData()
+      .then((data) => {
+        if (isMounted) {
+          setRemoteExperienceData(data)
+        }
+      })
+      .catch((error) => console.warn("[ExperiencePage] Error fetching data, using fallback.", error))
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -15,49 +55,12 @@ export default function ExperiencePage() {
     },
   }
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 50 },
     show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
   }
 
-  const experienceData = [
-    {
-      title: "Senior Software Engineer",
-      company: "Tech Innovators Inc.",
-      duration: "Jan 2023 - Present",
-      location: "San Francisco, CA",
-      description: [
-        "Led development of scalable microservices using Node.js and TypeScript.",
-        "Mentored junior engineers and conducted code reviews.",
-        "Optimized database queries, reducing latency by 30%.",
-        "Collaborated with product teams to define and implement new features.",
-      ],
-    },
-    {
-      title: "Software Engineer",
-      company: "Web Solutions Co.",
-      duration: "Jul 2020 - Dec 2022",
-      location: "Austin, TX",
-      description: [
-        "Developed front-end components with React and Next.js.",
-        "Integrated RESTful APIs and managed state with Redux.",
-        "Contributed to CI/CD pipeline improvements.",
-        "Participated in agile development sprints.",
-      ],
-    },
-    {
-      title: "Junior Developer Intern",
-      company: "Startup Hub",
-      duration: "May 2019 - Aug 2019",
-      location: "New York, NY",
-      description: [
-        "Assisted in building a Python/Django backend for a new web application.",
-        "Wrote unit and integration tests.",
-        "Learned version control with Git and GitHub.",
-        "Supported deployment processes.",
-      ],
-    },
-  ]
+  const { intro, experiences } = remoteExperienceData ?? experienceJson
 
   return (
     <div className="container py-12 md:py-24 lg:py-32">
@@ -68,7 +71,7 @@ export default function ExperiencePage() {
         transition={{ duration: 0.6 }}
         className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl text-center mb-8 text-primary"
       >
-        My Professional Journey
+        {intro.headline}
       </motion.h1>
       <motion.p
         initial={{ opacity: 0, y: 20 }}
@@ -77,18 +80,18 @@ export default function ExperiencePage() {
         transition={{ duration: 0.7, delay: 0.1 }}
         className="text-muted-foreground text-center max-w-2xl mx-auto mb-12"
       >
-        A timeline of my work experience, highlighting key roles, responsibilities, and achievements.
+        {intro.subheading}
       </motion.p>
 
-      <motion.div initial="hidden" animate="show" variants={containerVariants} className="relative pl-8 md:pl-16">
+      <motion.div initial="hidden" animate="show" variants={containerVariants} className="relative">
         {/* Vertical line for timeline */}
-        <div className="absolute left-4 md:left-8 top-0 bottom-0 w-1 bg-primary/20 rounded-full"></div>
+        <div className="absolute left-4 md:left-8 top-0 bottom-0 w-1 bg-primary/20 rounded-full -translate-x-1/2"></div>
 
-        {experienceData.map((exp, index) => (
-          <motion.div key={index} variants={itemVariants} className="mb-10 flex items-start relative">
+        {experiences.map((exp, index) => (
+          <motion.div key={index} variants={itemVariants} className="mb-10 relative pl-10 md:pl-16">
             {/* Circle for timeline point */}
-            <div className="absolute left-0 top-0 -ml-3 md:-ml-7 h-6 w-6 rounded-full bg-primary border-4 border-white shadow-md z-10"></div>
-            <Card className="flex-1 ml-8 md:ml-12 p-6 rounded-xl shadow-lg border-primary/20 hover:shadow-xl transition-shadow duration-300">
+            <div className="absolute left-4 md:left-8 top-0 -translate-x-1/2 h-6 w-6 rounded-full bg-primary border-4 border-white shadow-md z-10"></div>
+            <Card className="p-6 rounded-xl shadow-lg border-primary/20 hover:shadow-xl transition-shadow duration-300">
               <CardHeader className="p-0 pb-2">
                 <CardTitle className="text-2xl font-bold text-gray-900">{exp.title}</CardTitle>
                 <p className="text-lg text-muted-foreground flex items-center gap-2">
@@ -106,7 +109,7 @@ export default function ExperiencePage() {
               </CardHeader>
               <CardContent className="p-0 pt-4">
                 <ul className="list-disc pl-5 text-gray-700 space-y-2">
-                  {exp.description.map((item, i) => (
+                  {exp.highlights.map((item, i) => (
                     <li key={i}>{item}</li>
                   ))}
                 </ul>

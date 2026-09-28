@@ -1,15 +1,55 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 
 import Link from "next/link"
-import { motion } from "framer-motion"
+import { motion, type Variants } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ExternalLinkIcon, GithubIcon } from "lucide-react"
+import { ExternalLinkIcon } from "lucide-react"
+import { GithubIcon } from "@/components/brand-icons"
+import projectsJson from "@/api/projects.json"
+
+type ProjectsData = typeof projectsJson
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+
+async function fetchProjectsData(): Promise<ProjectsData> {
+  if (!API_BASE_URL) {
+    return projectsJson
+  }
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/projects`, { cache: "no-store" })
+    if (!res.ok) throw new Error("Failed to fetch projects data")
+    // return (await res.json()) as ProjectsData
+  } catch (error) {
+    console.warn("[ProjectsPage] Falling back to local JSON data.", error)
+  }
+
+  return projectsJson
+}
 
 export default function ProjectsPage() {
-  const containerVariants = {
+  const [remoteProjectsData, setRemoteProjectsData] = useState<ProjectsData | null>(null)
+
+  useEffect(() => {
+    let isMounted = true
+
+    fetchProjectsData()
+      .then((data) => {
+        if (isMounted) {
+          setRemoteProjectsData(data)
+        }
+      })
+      .catch((error) => console.warn("[ProjectsPage] Error fetching data, using fallback.", error))
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -19,50 +59,13 @@ export default function ProjectsPage() {
     },
   }
 
-  const cardVariants = {
+  const cardVariants: Variants = {
     hidden: { opacity: 0, y: 50 },
     show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
     hover: { y: -8, boxShadow: "0 12px 20px rgba(0,0,0,0.1)", transition: { type: "spring", stiffness: 300 } },
   }
 
-  const projectsData = [
-    {
-      title: "E-commerce Platform",
-      description:
-        "A full-stack e-commerce application with user authentication, product catalog, and payment integration.",
-      tech: ["Next.js", "React", "Node.js", "PostgreSQL", "Stripe"],
-      image: "/placeholder.svg?height=200&width=300",
-      github: "https://github.com/your-github/ecommerce-platform",
-      live: "https://ecommerce.yourdomain.com",
-    },
-    {
-      title: "AI Chatbot Assistant",
-      description:
-        "An intelligent chatbot powered by large language models, capable of natural language understanding and generation.",
-      tech: ["Python", "Flask", "OpenAI API", "React", "WebSockets"],
-      image: "/placeholder.svg?height=200&width=300",
-      github: "https://github.com/your-github/ai-chatbot",
-      live: "https://chatbot.yourdomain.com",
-    },
-    {
-      title: "Task Management App",
-      description:
-        "A simple and intuitive task management application to help users organize their daily tasks and boost productivity.",
-      tech: ["Vue.js", "Firebase", "Tailwind CSS"],
-      image: "/placeholder.svg?height=200&width=300",
-      github: "https://github.com/your-github/task-app",
-      live: "https://tasks.yourdomain.com",
-    },
-    {
-      title: "Portfolio Website V2",
-      description:
-        "The second iteration of my personal portfolio website, focusing on modern design and interactive elements.",
-      tech: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"],
-      image: "/placeholder.svg?height=200&width=300",
-      github: "https://github.com/your-github/portfolio-v2",
-      live: "https://yourdomain.com",
-    },
-  ]
+  const { intro, projects } = remoteProjectsData ?? projectsJson
 
   return (
     <div className="container py-12 md:py-24 lg:py-32">
@@ -73,7 +76,7 @@ export default function ProjectsPage() {
         transition={{ duration: 0.6 }}
         className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl text-center mb-8 text-primary"
       >
-        My Creative Projects
+        {intro.headline}
       </motion.h1>
       <motion.p
         initial={{ opacity: 0, y: 20 }}
@@ -82,8 +85,7 @@ export default function ProjectsPage() {
         transition={{ duration: 0.7, delay: 0.1 }}
         className="text-muted-foreground text-center max-w-2xl mx-auto mb-12"
       >
-        Explore a selection of my personal and professional projects, each with detailed descriptions, technologies
-        used, and links to live demos or source code.
+        {intro.description}
       </motion.p>
 
       <motion.div
@@ -93,7 +95,7 @@ export default function ProjectsPage() {
         variants={containerVariants}
         className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
       >
-        {projectsData.map((project, index) => (
+        {projects.map((project, index) => (
           <motion.div key={index} variants={cardVariants} whileHover="hover">
             <Card className="bg-card text-card-foreground shadow-lg border-primary/20 rounded-xl overflow-hidden">
               <img
