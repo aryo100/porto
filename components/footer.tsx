@@ -1,22 +1,20 @@
 import Link from "next/link"
+import { MailIcon } from "lucide-react"
 import { GithubIcon, LinkedinIcon, TwitterIcon } from "@/components/brand-icons"
-import siteJson from "@/api/site.json"
-
-type SiteData = typeof siteJson
-
-const siteData: SiteData = siteJson
+import type { SiteData } from "@/lib/portfolio-types"
 
 const iconMap = {
   github: GithubIcon,
   linkedin: LinkedinIcon,
   twitter: TwitterIcon,
+  mail: MailIcon,
 } as const
 
-export function Footer() {
+export function Footer({ siteData }: { siteData: SiteData }) {
   const { footer } = siteData
 
   return (
-    <footer className="border-t border-gray-200 py-8 bg-muted">
+    <footer className="border-t border-border py-8 bg-muted">
       <div className="container flex flex-col items-center justify-between gap-4 px-4 md:flex-row md:px-6">
         <p className="text-sm text-muted-foreground">
           &copy; {new Date().getFullYear()} {footer.copyrightName}. {footer.rightsText}
@@ -28,8 +26,8 @@ export function Footer() {
               <Link
                 key={social.icon}
                 href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
+                target={social.href.startsWith("http") ? "_blank" : undefined}
+                rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}
                 className="text-muted-foreground hover:text-primary transition-colors"
                 prefetch={false}
               >

@@ -2,21 +2,19 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { CalendarIcon, ChevronLeftIcon } from "lucide-react"
-import blogJson from "@/api/blog.json"
-import type { BlogData, InternalEntry } from "@/lib/blog-types"
+import { fetchApi, PortoServiceError } from "@/lib/porto-service"
 
-const blogData = blogJson as unknown as BlogData
+export const dynamic = "force-dynamic"
 
-function findInternalEntry(slug: string): InternalEntry | undefined {
-  return blogData.entries.find(
-    (item): item is InternalEntry => item.type === "internal" && item.slug === slug,
-  )
-}
+type BlogPost = { title: string; slug: string; date: string; description: string; content: string[] }
 
-export function generateStaticParams() {
-  return blogData.entries
-    .filter((entry) => entry.type === "internal")
-    .map((entry) => ({ slug: entry.slug }))
+async function findInternalEntry(slug: string): Promise<BlogPost | null> {
+  try {
+    return await fetchApi<BlogPost>(`/blog-posts/slug/${encodeURIComponent(slug)}`)
+  } catch (error) {
+    if (error instanceof PortoServiceError && error.status === 404) return null
+    throw error
+  }
 }
 
 export async function generateMetadata({
@@ -25,14 +23,14 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const entry = findInternalEntry(slug)
+  const entry = await findInternalEntry(slug)
 
   if (!entry) {
     return { title: "Article Not Found" }
   }
 
   return {
-    title: `${entry.title} | My Insights`,
+    title: entry.title,
     description: entry.description,
     openGraph: {
       title: entry.title,
@@ -49,7 +47,7 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const entry = findInternalEntry(slug)
+  const entry = await findInternalEntry(slug)
 
   if (!entry) {
     notFound()
@@ -75,9 +73,9 @@ export default async function BlogPostPage({
         </p>
       </header>
 
-      <p className="text-lg text-gray-700 mb-8">{entry.description}</p>
+      <p className="text-lg text-foreground mb-8">{entry.description}</p>
 
-      <div className="space-y-6 text-gray-700 leading-relaxed">
+      <div className="space-y-6 text-foreground leading-relaxed">
         {entry.content.map((paragraph, index) => (
           <p key={index}>{paragraph}</p>
         ))}

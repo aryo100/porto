@@ -2,18 +2,14 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import siteJson from "@/api/site.json"
+import type { SiteData } from "@/lib/portfolio-types"
 
-type SiteData = typeof siteJson
-
-const siteData: SiteData = siteJson
-
-export function Navbar() {
+export function Navbar({ siteData }: { siteData: SiteData }) {
   const pathname = usePathname()
   const { brand, nav } = siteData
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white shadow-sm">
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-background shadow-sm">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg text-primary" prefetch={false}>
           <span className="flex size-9 items-center justify-center rounded-md bg-primary text-base font-bold text-white">
@@ -36,7 +32,7 @@ export function Navbar() {
                 className={
                   isActive
                     ? "relative text-base font-semibold text-primary after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-primary"
-                    : "text-base font-medium text-gray-700 hover:text-primary transition-colors"
+                    : "text-base font-medium text-foreground hover:text-primary transition-colors"
                 }
               >
                 {link.label}

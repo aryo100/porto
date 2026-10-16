@@ -10,7 +10,7 @@ export type BlogEntry =
   | {
       type: "external"
       title: string
-      url: string
+      url?: string | null
       date: string
       description: string
       source?: string
@@ -18,7 +18,7 @@ export type BlogEntry =
   | {
       type: "achievement"
       title: string
-      url: string
+      url?: string | null
       date: string
       description: string
     }

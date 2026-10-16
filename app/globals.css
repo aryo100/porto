@@ -28,7 +28,6 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   --animate-blob: blob 7s infinite cubic-bezier(0.6, 0.01, 0.3, 0.9);
-  --animate-loop-scroll: loop-scroll 50s linear infinite;
 
   @keyframes blob {
     0% {
@@ -45,14 +44,6 @@
     }
   }
 
-  @keyframes loop-scroll {
-    from {
-      transform: translateX(0%);
-    }
-    to {
-      transform: translateX(-100%);
-    }
-  }
 }
 
 @utility animation-delay-2000 {
@@ -94,6 +85,42 @@
     --ring: 180 70% 40%; /* Primary color for ring */
 
     --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222 18% 10%;
+    --foreground: 210 20% 94%;
+    --card: 222 16% 15%;
+    --card-foreground: 210 20% 94%;
+    --popover: 222 16% 15%;
+    --popover-foreground: 210 20% 94%;
+    --secondary: 222 12% 22%;
+    --secondary-foreground: 210 20% 94%;
+    --muted: 222 12% 19%;
+    --muted-foreground: 215 12% 70%;
+    --accent: 222 12% 22%;
+    --accent-foreground: 210 20% 94%;
+    --border: 222 12% 28%;
+    --input: 222 12% 28%;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .system-theme {
+      --background: 222 18% 10%;
+      --foreground: 210 20% 94%;
+      --card: 222 16% 15%;
+      --card-foreground: 210 20% 94%;
+      --popover: 222 16% 15%;
+      --popover-foreground: 210 20% 94%;
+      --secondary: 222 12% 22%;
+      --secondary-foreground: 210 20% 94%;
+      --muted: 222 12% 19%;
+      --muted-foreground: 215 12% 70%;
+      --accent: 222 12% 22%;
+      --accent-foreground: 210 20% 94%;
+      --border: 222 12% 28%;
+      --input: 222 12% 28%;
+    }
   }
 }
 
