@@ -1,6 +1,5 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
 import Script from "next/script"
 import "./globals.css"
 import { Navbar } from "@/components/navbar"
@@ -8,7 +7,6 @@ import { Footer } from "@/components/footer"
 import { fetchApi, fetchContent, websiteUrl } from "@/lib/porto-service"
 import type { SettingsData, SiteData } from "@/lib/portfolio-types"
 
-const inter = Inter({ subsets: ["latin"] })
 export const dynamic = "force-dynamic"
 
 function hexToHsl(value?: string): string | undefined {
@@ -63,7 +61,7 @@ export default async function RootLayout({
   const validAnalytics = analyticsId && /^G-[A-Z0-9]+$/.test(analyticsId)
   return (
     <html lang={settings.siteConfig?.language || "en"} className={theme === "dark" ? "dark" : theme === "system" ? "system-theme" : undefined} style={primary ? { "--primary": primary } as React.CSSProperties : undefined}>
-      <body className={inter.className}>
+      <body>
         <div className="flex min-h-screen flex-col">
           <Navbar siteData={siteData} />
           <main className="flex-1">{children}</main>
