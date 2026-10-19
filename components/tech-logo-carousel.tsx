@@ -97,7 +97,7 @@ export function TechLogoCarousel({ items }: TechLogoCarouselProps) {
     <div
       className="relative w-full overflow-hidden py-8 bg-gradient-to-r from-background via-secondary/50 to-background border-y border-border select-none touch-pan-y cursor-grab active:cursor-grabbing"
       role="region"
-      aria-label="Skill portfolio. Geser untuk melihat skill lain."
+      aria-label="Portfolio skills. Scroll to see more skills."
       tabIndex={0}
       onKeyDown={(event) => { if (event.key === "ArrowRight" || event.key === "ArrowLeft") { event.preventDefault(); move(event.key === "ArrowRight" ? 120 : -120) } }}
       onPointerDown={(event) => { dragRef.current = { x: event.clientX }; event.currentTarget.setPointerCapture(event.pointerId) }}
