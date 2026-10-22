@@ -41,6 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description,
     keywords: Array.isArray(keywords) ? keywords : keywords?.split(",").map((item) => item.trim()).filter(Boolean),
     metadataBase: website ?? undefined,
+    icons: { icon: "/cv-mark.svg" },
     openGraph: { title, description, siteName: settings.siteConfig?.siteTitle || title, type: "website" },
     verification: settings.seo?.googleSearchConsole && settings.seo.googleSearchConsole !== "verified" ? { google: settings.seo.googleSearchConsole } : undefined,
   }

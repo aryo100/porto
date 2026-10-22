@@ -12,8 +12,8 @@ export function Navbar({ siteData }: { siteData: SiteData }) {
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background shadow-sm">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg text-primary" prefetch={false}>
-          <span className="flex size-9 items-center justify-center rounded-md bg-primary text-base font-bold text-white">
-            {brand.logoText}
+          <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-sm font-extrabold tracking-tight text-white" aria-label="CV logo">
+            CV
           </span>
           <span>{brand.name}</span>
         </Link>
