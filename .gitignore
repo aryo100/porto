@@ -31,3 +31,5 @@ pnpm-debug.log*
 Thumbs.db
 
 api/
+!app/api/
+design-planning/

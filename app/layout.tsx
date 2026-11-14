@@ -2,10 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import Script from "next/script"
 import "./globals.css"
-import { Navbar } from "@/components/navbar"
-import { Footer } from "@/components/footer"
-import { fetchApi, fetchContent, websiteUrl } from "@/lib/porto-service"
-import type { SettingsData, SiteData } from "@/lib/portfolio-types"
+import { fetchApi, websiteUrl } from "@/lib/porto-service"
+import type { SettingsData } from "@/lib/portfolio-types"
 
 export const dynamic = "force-dynamic"
 
@@ -32,8 +30,10 @@ function hexToHsl(value?: string): string | undefined {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await fetchApi<SettingsData>("/settings")
-  const title = settings.seo?.metaTitle || settings.siteConfig?.siteTitle || settings.profile?.name || "Portfolio"
-  const description = settings.seo?.metaDescription || settings.siteConfig?.description || settings.profile?.bio || ""
+  const seoTitle = settings.seo?.metaTitle === "John Doe - Full Stack Software Engineer" ? "" : settings.seo?.metaTitle
+  const seoDescription = settings.seo?.metaDescription?.startsWith("Experienced software engineer specializing in React, Node.js") ? "" : settings.seo?.metaDescription
+  const title = settings.siteConfig?.tabTitle || seoTitle || settings.siteConfig?.siteTitle || settings.profile?.name || "Portfolio"
+  const description = seoDescription || settings.siteConfig?.description || settings.profile?.bio || ""
   const keywords = settings.seo?.keywords
   const website = websiteUrl(settings.profile?.website)
   return {
@@ -41,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description,
     keywords: Array.isArray(keywords) ? keywords : keywords?.split(",").map((item) => item.trim()).filter(Boolean),
     metadataBase: website ?? undefined,
-    icons: { icon: "/cv-mark.svg" },
+    icons: { icon: settings.siteConfig?.faviconPath || "/voyager/icon.svg" },
     openGraph: { title, description, siteName: settings.siteConfig?.siteTitle || title, type: "website" },
     verification: settings.seo?.googleSearchConsole && settings.seo.googleSearchConsole !== "verified" ? { google: settings.seo.googleSearchConsole } : undefined,
   }
@@ -52,22 +52,18 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const [siteData, settings] = await Promise.all([
-    fetchContent<SiteData>("site"),
-    fetchApi<SettingsData>("/settings"),
-  ])
+  const settings = await fetchApi<SettingsData>("/settings")
   const primary = hexToHsl(settings.siteConfig?.primaryColor)
   const theme = settings.siteConfig?.theme
   const analyticsId = settings.seo?.googleAnalytics
   const validAnalytics = analyticsId && /^G-[A-Z0-9]+$/.test(analyticsId)
   return (
     <html lang={settings.siteConfig?.language || "en"} className={theme === "dark" ? "dark" : theme === "system" ? "system-theme" : undefined} style={primary ? { "--primary": primary } as React.CSSProperties : undefined}>
-      <body>
-        <div className="flex min-h-screen flex-col">
-          <Navbar siteData={siteData} />
-          <main className="flex-1">{children}</main>
-          <Footer siteData={siteData} />
-        </div>
+      <head>
+        <script type="importmap" dangerouslySetInnerHTML={{ __html: '{"imports":{"three":"/vendor/build/three.module.js","three/addons/":"/vendor/examples/jsm/"}}' }} />
+      </head>
+      <body className="is-loading" aria-busy="true">
+        {children}
         {validAnalytics && <>
           <Script src={`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`} strategy="afterInteractive" />
           <Script id="google-analytics" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${analyticsId}');`}</Script>
