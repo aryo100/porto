@@ -5,8 +5,6 @@ import "./globals.css"
 import { fetchApi, websiteUrl } from "@/lib/porto-service"
 import type { SettingsData } from "@/lib/portfolio-types"
 
-export const dynamic = "force-dynamic"
-
 function hexToHsl(value?: string): string | undefined {
   if (!value || !/^#[0-9a-fA-F]{6}$/.test(value)) return undefined
   const [r, g, b] = [1, 3, 5].map((index) => parseInt(value.slice(index, index + 2), 16) / 255)

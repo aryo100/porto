@@ -1,7 +1,7 @@
 import { fetchApi, websiteUrl } from "@/lib/porto-service"
 import type { SettingsData } from "@/lib/portfolio-types"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 3600
 
 export async function GET(request: Request) {
   const settings = await fetchApi<SettingsData>("/settings")

@@ -206,18 +206,14 @@ function createRecordPortrait({ renderer, mount, wake }) {
   empty.needsUpdate = true;
   const state = { texture: { value: empty }, strength: { value: 0 }, ready: { value: 0 }, roll: { value: 0 } };
   const controller = new AbortController();
-  let timer, stopped = false, revision = '', busy = false;
+  let stopped = false, busy = false;
   async function refresh() {
-    if (busy || stopped || document.hidden) return;
+    if (busy || stopped) return;
     busy = true;
     try {
-      const response = await fetch('/assets/image.jpg', {
-        cache: 'no-store', signal: controller.signal,
-        headers: revision ? { 'If-None-Match': revision } : {}
-      });
-      if (response.status === 304) return;
+      const response = await fetch('/assets/image.jpg', { signal: controller.signal });
       if (!response.ok) {
-        if (response.status === 404) { state.ready.value = 0; revision = ''; wake(); }
+        if (response.status === 404) { state.ready.value = 0; wake(); }
         mount.dataset.portraitStatus = 'waiting-for-image';
         return;
       }
@@ -241,18 +237,15 @@ function createRecordPortrait({ renderer, mount, wake }) {
       const texture = new THREE.CanvasTexture(canvas);
       texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
       state.texture.value.dispose(); state.texture.value = texture; state.ready.value = 1;
-      revision = response.headers.get('ETag') || '';
       mount.dataset.portraitStatus = 'ready';
-      mount.dataset.portraitRevision = revision;
       mount.dataset.portraitFilter = 'positive-black-ink-transparent-highlights';
       wake();
     } catch (error) {
       if (!stopped) mount.dataset.portraitStatus = 'retrying';
     } finally { busy = false; }
   }
-  function schedule() { refresh(); timer = setTimeout(schedule, 2500); }
-  schedule();
-  return { ...state, dispose() { stopped = true; clearTimeout(timer); controller.abort(); state.texture.value.dispose(); } };
+  void refresh();
+  return { ...state, dispose() { stopped = true; controller.abort(); state.texture.value.dispose(); } };
 }
 
 function createRecordFinish(portrait = null) {

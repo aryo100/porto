@@ -17,7 +17,7 @@ export function assetUrl(value: string): string {
 }
 
 export async function fetchApi<T>(path: string): Promise<T> {
-  const response = await fetch(`${apiBase}${path}`, { cache: "no-store" })
+  const response = await fetch(`${apiBase}${path}`, { cache: "force-cache", next: { revalidate: 3600 } })
   if (!response.ok) throw new PortoServiceError(response.status, path)
   return await response.json() as T
 }

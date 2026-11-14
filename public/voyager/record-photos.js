@@ -220,7 +220,7 @@ export function createRecordGallery({ viewport, mount, reveal, wake }) {
   viewport.append(layer);
   const controller = new AbortController(), signal = controller.signal;
   const initialTouchAction = viewport.style.touchAction;
-  let cards = [], disposed = false, frontOrder = 30, origin = { x: 0, y: 0 }, active = false, revision = '', lastPosition = 0, gestureOwner = null;
+  let cards = [], disposed = false, frontOrder = 30, origin = { x: 0, y: 0 }, active = false, lastPosition = 0, gestureOwner = null;
   let renderedCardCount = -1;
   const pointFromEvent = event => {
     const rect = viewport.getBoundingClientRect();
@@ -335,11 +335,11 @@ export function createRecordGallery({ viewport, mount, reveal, wake }) {
     if (personal) card.resetColor = () => { card.colorTap = null; setColor(false); };
     return card;
   };
-  const ready = fetch('/assets/golden-record/manifest.json', { cache: 'no-store', signal })
+  const ready = fetch('/assets/golden-record/manifest.json', { signal })
     .then(response => { if (!response.ok) throw new Error('Gallery unavailable'); return response.json(); })
     .then(async manifest => {
       if (disposed) return;
-      const portraitAvailable = await fetch('/assets/image.jpg', { method: 'HEAD', cache: 'no-store', signal })
+      const portraitAvailable = await fetch('/assets/image.jpg', { method: 'HEAD', signal })
         .then(response => response.ok).catch(() => false);
       const images = selectRecordPhotos(portraitAvailable ? manifest.images : manifest.images.filter(image => image.src !== '/assets/image.jpg'));
       cards = images.map(createCard);
@@ -350,15 +350,6 @@ export function createRecordGallery({ viewport, mount, reveal, wake }) {
     }).catch(error => { if (!disposed) mount.dataset.galleryStatus = 'unavailable'; throw error; });
   // The scene awaits this promise together with its models; attach immediately for early failures.
   ready.catch(() => {});
-  const timer = setInterval(async () => {
-    if (document.hidden || disposed || !cards.at(-1)?.personal) return;
-    try {
-      const response = await fetch('/assets/image.jpg', { method: 'HEAD', cache: 'no-store', signal });
-      const next = response.headers.get('ETag');
-      if (response.ok && revision && next !== revision) cards.at(-1).photo.src = `/assets/image.jpg?v=${encodeURIComponent(next)}`;
-      if (response.ok) revision = next;
-    } catch { /* Keep the last decoded photo if a replacement is being written. */ }
-  }, 2500);
   return {
     ready,
     isComplete(progress) { return cards.length > 0 && (progress === undefined ? lastPosition : reveal.sequencePosition(progress)) >= cards.length - .000001; },
@@ -430,7 +421,7 @@ export function createRecordGallery({ viewport, mount, reveal, wake }) {
       return Boolean(moving);
     },
     dispose() {
-      disposed = true; clearInterval(timer); cards.forEach(card => release(card, true)); controller.abort(); layer.remove();
+      disposed = true; cards.forEach(card => release(card, true)); controller.abort(); layer.remove();
     }
   };
 }
