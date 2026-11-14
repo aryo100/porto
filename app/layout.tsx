@@ -57,10 +57,10 @@ export default async function RootLayout({
   const validAnalytics = analyticsId && /^G-[A-Z0-9]+$/.test(analyticsId)
   return (
     <html lang={settings.siteConfig?.language || "en"} className={theme === "dark" ? "dark" : theme === "system" ? "system-theme" : undefined} style={primary ? { "--primary": primary } as React.CSSProperties : undefined}>
-      <head>
-        <script type="importmap" dangerouslySetInnerHTML={{ __html: '{"imports":{"three":"/vendor/build/three.module.js","three/addons/":"/vendor/examples/jsm/"}}' }} />
-      </head>
       <body className="is-loading" aria-busy="true">
+        <Script id="three-importmap" type="importmap" strategy="beforeInteractive">
+          {'{"imports":{"three":"/vendor/build/three.module.js","three/addons/":"/vendor/examples/jsm/"}}'}
+        </Script>
         {children}
         {validAnalytics && <>
           <Script src={`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`} strategy="afterInteractive" />
