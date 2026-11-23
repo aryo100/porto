@@ -642,6 +642,14 @@ dialog::backdrop { background: #060b08c9; backdrop-filter: blur(12px); }
 .voyager-project-image { display:flex; width:100%; aspect-ratio:1.26; align-items:center; justify-content:center; object-fit:cover; background:radial-gradient(circle at 50% 30%,#2d3a2e,#111b14 60%,#0b100e); color:#c5a46b; font-family:var(--display); font-size:clamp(1.5rem,3vw,3rem); font-weight:700; text-align:center; }
 .voyager-project-image:not(img) { padding:2rem; }
 .project-page>.voyager-project-image { display:block; width:100%; height:auto; min-height:var(--preview-window-height,220px); aspect-ratio:auto; object-fit:cover; }
+.project-gallery { position:absolute; inset:0; display:block; overflow:hidden; }
+.project-gallery>img { position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover; object-position:center top; }
+.project-gallery-fade>img { opacity:0; transition:opacity .8s ease-in-out; }
+.project-gallery-fade>img.is-current { opacity:1; }
+.project-gallery-slide>img { transform:translateX(-100%); }
+.project-gallery-slide>img.is-current { transform:translateX(0); transition:transform .7s cubic-bezier(.65,0,.35,1); }
+.project-gallery-slide>img.is-previous { transform:translateX(100%); transition:transform .7s cubic-bezier(.65,0,.35,1); }
+@media (prefers-reduced-motion: reduce) { .project-gallery>img { transition:none!important; } }
 .project-phone .phone-scroll-track img { display:block; width:100%; height:auto; }
 .project-browser.is-cover .project-page,.project-phone.is-cover .phone-scroll-track { height:100%; transition:none; }
 .project-browser.is-cover .project-page>.voyager-project-image,.project-phone.is-cover .phone-scroll-track img { width:100%; height:100%; min-height:0; object-fit:cover; object-position:center top; }

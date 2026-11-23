@@ -3,8 +3,10 @@ const sizes = {
   mobile: { width: 320, height: 1600 },
 };
 
-export function canScrollProjectPreview(source, width, height, mobile = false) {
-  if (!source) return false;
+export function canScrollProjectPreview(source, width, height, mobile = false, scrollAnimation = null) {
+  if (!source || !width || !height) return false;
+  if (scrollAnimation === true) return true;
+  if (scrollAnimation === false) return false;
   let url;
   try { url = new URL(source, 'https://preview.local'); }
   catch { return false; }

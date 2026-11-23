@@ -10,3 +10,11 @@ test('only exact JPG page screenshots scroll', () => {
   assert.equal(canScrollProjectPreview('/api/v1/uploads/photo.png', 800, 1500), false);
   assert.equal(canScrollProjectPreview('/api/v1/uploads/photo.jpg', 800, 1500, true), false);
 });
+
+test('explicit scroll choice overrides legacy image dimensions', () => {
+  assert.equal(canScrollProjectPreview('/api/v1/uploads/portrait.png', 640, 1200, false, true), true);
+  assert.equal(canScrollProjectPreview('/api/v1/uploads/portrait.webp', 400, 900, true, true), true);
+  assert.equal(canScrollProjectPreview('/api/v1/uploads/portrait.jpg', 800, 1500, false, false), false);
+  assert.equal(canScrollProjectPreview('/api/v1/uploads/portrait.jpg', 800, 1500, false, null), true);
+  assert.equal(canScrollProjectPreview('/api/v1/uploads/portrait.png', 640, 1200, false, null), false);
+});

@@ -6,6 +6,9 @@ export type SectionExperience = {
 export type SectionProject = {
   title: string; description?: string; category?: string; technologies?: string[];
   image?: string | null; mobileImage?: string | null; githubUrl?: string | null; liveUrl?: string | null;
+  scrollAnimation?: boolean | null;
+  galleryImages?: string[]; mobileGalleryImages?: string[];
+  previewAnimation?: "scroll" | "gallery";
 }
 
 export type SectionAchievement = {
@@ -32,7 +35,7 @@ export type SectionContent = {
 
 export function imageUrl(value?: string | null): string {
   if (!value) return ""
-  const upload = value.match(/^\/api\/v1\/uploads\/([0-9]{13}-[a-f0-9]{12}\.(?:png|jpg|jpeg|gif|webp|svg|avif)|seed-project-(?:porto(?:-mobile)?|control(?:-mobile)?|service)\.(?:jpg|svg))$/)
+  const upload = value.match(/^\/api\/v1\/uploads\/([0-9]{13}-[a-f0-9]{12}\.(?:png|jpg|jpeg|gif|webp|svg|avif)|seed-project-(?:porto(?:-mobile)?|control(?:-mobile)?|service)\.(?:jpg|svg)|seed-project-gallery-(?:fade|slide)-[12]\.svg)$/)
   if (upload) return `/api/section-content/image?name=${encodeURIComponent(upload[1])}`
   if (/^https:\/\//.test(value)) return value
   if (/^\/assets\/golden-record\/[a-zA-Z0-9._-]+\.(?:gif|jpg|jpeg|png|webp)$/.test(value)) return value

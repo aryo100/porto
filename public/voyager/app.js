@@ -307,9 +307,15 @@ document.querySelectorAll('.project-browser, [data-mobile-animation="scroll"]').
   const mobile = preview.dataset.mobileAnimation === 'scroll';
   const viewport = preview.querySelector(mobile ? '.phone-screen' : '.project-browser-view');
   const page = preview.querySelector(mobile ? '.phone-scroll-track' : '.project-page');
+  if (!page) return;
   const image = page.querySelector('img');
   function measurePreview() {
-    const canScroll = Boolean(image && canScrollProjectPreview(image.currentSrc || image.src, image.naturalWidth, image.naturalHeight, mobile));
+    const card = preview.closest('.project-card');
+    const setting = preview.dataset.scrollAnimation || card?.dataset.scrollAnimation;
+    const selected = setting === 'on' ? true : setting === 'off' ? false : null;
+    const eligible = Boolean(image && canScrollProjectPreview(image.currentSrc || image.src, image.naturalWidth, image.naturalHeight, mobile, selected));
+    const imageHeight = image?.naturalWidth ? viewport.clientWidth * image.naturalHeight / image.naturalWidth : 0;
+    const canScroll = eligible && imageHeight > viewport.clientHeight + 1;
     preview.classList.toggle('is-cover', !canScroll);
     preview.tabIndex = canScroll ? 0 : -1;
     preview.setAttribute('aria-label', `${mobile ? 'Mobile' : 'Desktop'} ${canScroll ? 'scrolling preview' : 'cover'} of ${preview.closest('.project-card')?.querySelector('h3')?.textContent || 'project'}`);
@@ -318,7 +324,6 @@ document.querySelectorAll('.project-browser, [data-mobile-animation="scroll"]').
     preview.style.setProperty('--preview-travel', `${travel}px`);
     preview.style.setProperty('--preview-duration', `${Math.max(3.5, travel / (mobile ? 65 : 85))}s`);
     preview.dataset.previewTravel = String(travel);
-    const card = preview.closest('.project-card');
     card?.classList.toggle('has-preview-travel', [...card.querySelectorAll('.project-browser, .project-phone')].some(item => Number(item.dataset.previewTravel) > 0));
   }
   const observer = new ResizeObserver(measurePreview);
