@@ -1,30 +1,22 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 
-export function ProjectGallery({ images, mode }: { images: string[]; mode: "fade" | "slide" }) {
-  const element = useRef<HTMLSpanElement>(null)
-  const [visible, setVisible] = useState(false)
-  const [frame, setFrame] = useState({ current: 0, previous: -1 })
+export function ProjectGallery({ images, mode, active }: { images: string[]; mode: "fade" | "slide"; active: boolean }) {
+  const [frame, setFrame] = useState(0)
 
   useEffect(() => {
-    const node = element.current
-    if (!node) return
-    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0.1 })
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [])
+    if (images.length < 2) return
+    const advance = () => {
+      if (document.hidden || document.body.classList.contains("motion-paused") || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+      setFrame((current) => active ? Math.min(images.length - 1, current + 1) : Math.max(0, current - 1))
+    }
+    const start = window.setTimeout(advance, 30)
+    const timer = window.setInterval(advance, active ? 1300 : 800)
+    return () => { window.clearTimeout(start); window.clearInterval(timer) }
+  }, [active, images.length])
 
-  useEffect(() => {
-    if (!visible || images.length < 2) return
-    const timer = window.setInterval(() => {
-      if (document.body.classList.contains("motion-paused") || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-      setFrame(({ current }) => ({ current: (current + 1) % images.length, previous: current }))
-    }, 3600)
-    return () => window.clearInterval(timer)
-  }, [visible, images.length])
-
-  return <span ref={element} className={`project-gallery project-gallery-${mode}`} aria-hidden="true">
-    {images.map((src, index) => <img key={`${src}-${index}`} src={src} alt="" className={index === frame.current ? "is-current" : index === frame.previous ? "is-previous" : undefined} />)}
+  return <span className={`project-gallery project-gallery-${mode}`} aria-hidden="true">
+    {images.map((src, index) => <img key={`${src}-${index}`} src={src} alt="" className={index === frame ? "is-current" : undefined} style={mode === "slide" ? { transform: `translateX(${(frame - index) * 100}%)` } : undefined} />)}
   </span>
 }

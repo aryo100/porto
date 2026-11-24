@@ -1,46 +1,48 @@
 "use client"
 
-import type { KeyboardEvent, MouseEvent } from "react"
+import { useState, type KeyboardEvent, type MouseEvent } from "react"
 import { EmphasisHeading } from "./content-ui"
 import { ProjectGallery } from "./project-gallery"
 import { externalUrl, imageUrl, type SectionProject } from "@/lib/section-content"
 
 function ProjectCard({ project, index }: { project: SectionProject; index: number }) {
+  const [galleryActive, setGalleryActive] = useState(false)
   const site = externalUrl(project.liveUrl)
   const github = externalUrl(project.githubUrl)
   const desktopImages = [project.image, ...(project.galleryImages ?? [])].map((value) => imageUrl(value)).filter(Boolean)
   const mobileImages = [project.mobileImage, ...(project.mobileGalleryImages ?? [])].map((value) => imageUrl(value)).filter(Boolean)
   const desktop = desktopImages[0] ?? ""
   const mobile = mobileImages[0] ?? ""
-  const isApp = project.category === "Mobile App" || project.category === "Desktop App"
-  const galleryMode = isApp ? "slide" : "fade"
-  const galleryEnabled = project.scrollAnimation === true && project.previewAnimation === "gallery"
-  const desktopGallery = galleryEnabled && desktopImages.length > 1
-  const mobileGallery = galleryEnabled && mobileImages.length > 1
-  const scrollSetting = project.previewAnimation === "gallery" ? "off" : project.scrollAnimation === true ? "on" : project.scrollAnimation === false ? "off" : "auto"
+  const desktopAnimation = project.desktopAnimation ?? (project.scrollAnimation === true ? project.previewAnimation === "gallery" ? "fade" : "scroll" : project.scrollAnimation === false ? "off" : "auto")
+  const mobileAnimation = project.mobileAnimation ?? (project.scrollAnimation === true ? project.previewAnimation === "gallery" ? "slide" : "scroll" : project.scrollAnimation === false ? "off" : "auto")
+  const desktopGallery = (desktopAnimation === "fade" || desktopAnimation === "slide") && desktopImages.length > 1
+  const mobileGallery = (mobileAnimation === "fade" || mobileAnimation === "slide") && mobileImages.length > 1
+  const desktopScroll = desktopAnimation === "scroll" ? "on" : desktopAnimation === "auto" ? "auto" : "off"
+  const mobileScroll = mobileAnimation === "scroll" ? "on" : mobileAnimation === "auto" ? "auto" : "off"
   const visit = (event: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>) => {
     if (!site || (event.target instanceof Element && event.target.closest("a, button"))) return
     window.open(site, "_blank", "noopener,noreferrer")
   }
 
-  return <article className={`project-card group${mobile ? " has-mobile" : ""}${site ? " has-site-link cursor-pointer focus-visible:outline focus-visible:outline-offset-[7px] focus-visible:outline-[var(--gold)]" : ""}`} data-scroll-animation={project.scrollAnimation === true ? "on" : project.scrollAnimation === false ? "off" : "auto"} role={site ? "link" : undefined} tabIndex={site ? 0 : undefined} aria-label={site ? `Visit ${project.title} (opens in a new tab)` : undefined}
+  return <article className={`project-card group${mobile ? " has-mobile" : ""}${mobile && !desktop ? " mobile-only" : ""}${site ? " has-site-link cursor-pointer focus-visible:outline focus-visible:outline-offset-[7px] focus-visible:outline-[var(--gold)]" : ""}`} role={site ? "link" : undefined} tabIndex={site ? 0 : undefined} aria-label={site ? `Visit ${project.title} (opens in a new tab)` : undefined}
+    onMouseEnter={() => setGalleryActive(true)} onMouseLeave={() => setGalleryActive(false)} onFocus={() => setGalleryActive(true)} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setGalleryActive(false) }}
     onClick={visit} onKeyDown={(event) => { if (event.key === "Enter" && event.target === event.currentTarget) visit(event) }}>
-    <div className="project-media">
-      <div className="project-tilt">
-        <div className="project-browser" role="img" tabIndex={desktopGallery ? undefined : 0} data-scroll-animation={scrollSetting} aria-label={`Desktop ${desktopGallery ? `${galleryMode} gallery` : "preview"} of ${project.title}.`}>
+    {(desktop || mobile) && <div className="project-media">
+      {desktop && <div className="project-tilt">
+        <div className="project-browser" role="img" tabIndex={desktopGallery ? undefined : 0} data-scroll-animation={desktopScroll} aria-label={`Web ${desktopGallery ? `${desktopAnimation} gallery` : "preview"} of ${project.title}.`}>
           <span className="project-browser-bar"><i /><i /><i /><span>{project.title.toLowerCase()}</span></span>
-          <span className="project-browser-view">{desktopGallery ? <ProjectGallery key={desktopImages.join("|")} images={desktopImages} mode={galleryMode} /> : <span className="project-page">{desktop ? <img className="voyager-project-image" src={desktop} alt="" /> : <span className="voyager-project-image">{project.title}</span>}</span>}</span>
+          <span className="project-browser-view">{desktopGallery ? <ProjectGallery key={desktopImages.join("|")} images={desktopImages} mode={desktopAnimation as "fade" | "slide"} active={galleryActive} /> : <span className="project-page"><img className="voyager-project-image" src={desktop} alt="" /></span>}</span>
         </div>
-      </div>
-      {mobile && <div className="project-phone" data-mobile-animation="scroll" data-scroll-animation={scrollSetting} tabIndex={mobileGallery ? undefined : 0} role="img" aria-label={`Mobile ${mobileGallery ? `${galleryMode} gallery` : "preview"} of ${project.title}.`}>
-        <div className="phone-status">9:41</div><div className="phone-screen">{mobileGallery ? <ProjectGallery key={mobileImages.join("|")} images={mobileImages} mode={galleryMode} /> : <div className="phone-scroll-track"><img src={mobile} alt="" /></div>}</div>
       </div>}
-    </div>
+      {mobile && <div className="project-phone" data-mobile-animation="scroll" data-scroll-animation={mobileScroll} tabIndex={mobileGallery ? undefined : 0} role="img" aria-label={`Mobile ${mobileGallery ? `${mobileAnimation} gallery` : "preview"} of ${project.title}.`}>
+        <div className="phone-status">9:41</div><div className="phone-screen">{mobileGallery ? <ProjectGallery key={mobileImages.join("|")} images={mobileImages} mode={mobileAnimation as "fade" | "slide"} active={galleryActive} /> : <div className="phone-scroll-track"><img src={mobile} alt="" /></div>}</div>
+      </div>}
+    </div>}
     <div className="project-meta"><span className="mono">PROJECT {String(index + 1).padStart(2, "0")}</span></div>
     <h3 className={site ? "group-hover:text-[var(--gold)] group-focus-visible:text-[var(--gold)]" : undefined}>{project.title}</h3>
     <p className="project-description">{project.description || ""}</p>
     {github && <a className="-mt-3 mb-[22px] self-start font-mono text-[10px] leading-[1.8] tracking-[.3px] text-[var(--gold)] uppercase hover:underline focus-visible:underline" href={github} target="_blank" rel="noopener noreferrer" onClick={(event) => event.stopPropagation()}>GitHub ↗</a>}
-    <div className="project-foot"><span>{project.category || "PROJECT"}<br />{(project.technologies || []).join(" · ")}</span><span className="project-format">{mobile ? "DESKTOP + MOBILE" : "DESKTOP"}</span></div>
+    <div className="project-foot"><span>{project.category || "PROJECT"}<br />{(project.technologies || []).join(" · ")}</span><span className="project-format">{desktop && mobile ? "WEB + MOBILE" : desktop ? "WEB" : mobile ? "MOBILE" : "PROJECT"}</span></div>
   </article>
 }
 

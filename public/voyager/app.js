@@ -299,7 +299,7 @@ const projectRevealObserver = new IntersectionObserver(entries => {
       projectRevealObserver.unobserve(entry.target);
     }
   });
-}, { threshold: .12, rootMargin: '0px 0px -5% 0px' });
+}, { threshold: .3, rootMargin: '0px 0px -15% 0px' });
 projectCards.forEach(card => projectRevealObserver.observe(card));
 workSection.classList.add('project-motion-ready');
 
@@ -322,9 +322,8 @@ document.querySelectorAll('.project-browser, [data-mobile-animation="scroll"]').
     preview.style.setProperty('--preview-window-height', `${viewport.clientHeight}px`);
     const travel = canScroll ? Math.max(0, page.scrollHeight - viewport.clientHeight) : 0;
     preview.style.setProperty('--preview-travel', `${travel}px`);
-    preview.style.setProperty('--preview-duration', `${Math.max(3.5, travel / (mobile ? 65 : 85))}s`);
+    preview.style.setProperty('--preview-duration', `${Math.max(2.7, travel / (mobile ? 85 : 110))}s`);
     preview.dataset.previewTravel = String(travel);
-    card?.classList.toggle('has-preview-travel', [...card.querySelectorAll('.project-browser, .project-phone')].some(item => Number(item.dataset.previewTravel) > 0));
   }
   const observer = new ResizeObserver(measurePreview);
   observer.observe(viewport);

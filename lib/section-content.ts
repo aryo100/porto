@@ -9,6 +9,8 @@ export type SectionProject = {
   scrollAnimation?: boolean | null;
   galleryImages?: string[]; mobileGalleryImages?: string[];
   previewAnimation?: "scroll" | "gallery";
+  desktopAnimation?: "off" | "scroll" | "fade" | "slide" | null;
+  mobileAnimation?: "off" | "scroll" | "fade" | "slide" | null;
 }
 
 export type SectionAchievement = {

@@ -334,8 +334,11 @@ export function VoyagerPageLayout({ content }: { content: SectionContent }): Rea
             <div className="toolkit-sphere" data-toolkit-sphere="" role="group" tabIndex={0} aria-label="Toolkit text globe. Drag in any direction or use all four arrow keys to rotate 360 degrees.">
             </div>
           </div>
-          <div className="toolkit-categories">
-            {[...groups.entries()].map(([category, names]) => <div key={category}><h3>{category}</h3><ul>{names.map((name) => <li key={name}>{name}</li>)}</ul></div>)}
+          <div className="toolkit-skills">
+            <p className="toolkit-skills-label">Skills by category</p>
+            <div className="toolkit-categories">
+              {[...groups.entries()].map(([category, names]) => <div key={category}><h3>{category}</h3><ul>{names.map((name) => <li key={name}>{name}</li>)}</ul></div>)}
+            </div>
           </div>
         </div>
       </section>
