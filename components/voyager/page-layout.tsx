@@ -227,7 +227,8 @@ export function VoyagerPageLayout({ content }: { content: SectionContent }): Rea
               <h2><EmphasisHeading text={content.journeyHeading || "BUILT TO GO further."} /></h2>
               <p className="chapter-description">{education ? `${education.degree} · ${education.institution}${educationYears ? ` · ${educationYears}` : ""}` : "Add education in Porto Control to complete this chapter."}</p>
               <dl className="voyager-summary" aria-label={`${fullName} at a glance`}>
-                {[["Work chapters", content.experiences?.length || 0], ["Technologies", content.skills?.length || 0], ["Projects", content.projects?.length || 0], ["Graduation year", education?.endDate?.slice(0, 4) || ""]].filter(([, value]) => Boolean(value)).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
+                {/* {[["Work chapters", content.experiences?.length || 0], ["Technologies", content.skills?.length || 0], ["Projects", content.projects?.length || 0], ["Graduation year", education?.endDate?.slice(0, 4) || ""]].filter(([, value]) => Boolean(value)).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)} */}
+                {[["Work experience", ((new Date(Math.max(...(content.experiences ?? []).map(item => new Date(item.startDate??"").getTime()))).getFullYear())-(new Date(Math.min(...(content.experiences ?? []).map(item => new Date(item.startDate??"").getTime())))).getFullYear()) || 0], ["Technologies", content.skills?.length || 0], ["Projects", content.projects?.length || 0], ["Graduation year", education?.endDate?.slice(0, 4) || ""]].filter(([, value]) => Boolean(value)).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
               </dl>
               <a className="text-link" href="#work">
                 DISCOVER THE WORK 

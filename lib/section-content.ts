@@ -38,7 +38,7 @@ export type SectionContent = {
 export function imageUrl(value?: string | null): string {
   if (!value) return ""
   const upload = value.match(/^\/api\/v1\/uploads\/([0-9]{13}-[a-f0-9]{12}\.(?:png|jpg|jpeg|gif|webp|svg|avif)|seed-project-(?:porto(?:-mobile)?|control(?:-mobile)?|service)\.(?:jpg|svg)|seed-project-gallery-(?:fade|slide)-[12]\.svg)$/)
-  if (upload) return `/api/section-content/image?name=${encodeURIComponent(upload[1])}`
+  if (upload) return `/api/section-content/image/${encodeURIComponent(upload[1])}`
   if (/^https:\/\//.test(value)) return value
   if (/^\/assets\/golden-record\/[a-zA-Z0-9._-]+\.(?:gif|jpg|jpeg|png|webp)$/.test(value)) return value
   if (/^\/voyager\/[a-zA-Z0-9._-]+\.svg$/.test(value)) return value
